@@ -3,17 +3,9 @@ package upandrunning.api
 import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 import upandrunning.actors.TicketSeller
 
-case class EventDescription(tickets: Int)  {
-  require(tickets > 0)
-}
 
-case class TicketRequest(tickets: Int){
-  require(tickets > 0)
-}
+trait BoxOfficeMarshalling extends DefaultJsonProtocol{
 
-case class Error(message: String)
-
-trait EventMarshalling extends DefaultJsonProtocol{
 
   import upandrunning.actors.BoxOffice._
 
@@ -26,3 +18,13 @@ trait EventMarshalling extends DefaultJsonProtocol{
 
 
 }
+
+case class EventDescription(tickets: Int)  {
+  require(tickets > 0)
+}
+
+case class TicketRequest(tickets: Int){
+  require(tickets > 0)
+}
+
+case class Error(message: String)
