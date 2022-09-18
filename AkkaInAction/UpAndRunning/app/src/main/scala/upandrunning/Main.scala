@@ -2,11 +2,10 @@ package upandrunning
 
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
-import upandrunning.rest.{RequestTimeout, RestApi}
 
 import scala.concurrent.ExecutionContextExecutor
 
-object Main extends App with RequestTimeout{
+object Main extends App{
 
   val config = ConfigFactory.load()
   val host = config.getString("http.host")
@@ -14,8 +13,9 @@ object Main extends App with RequestTimeout{
 
   implicit val system: ActorSystem = ActorSystem()
   implicit val ec: ExecutionContextExecutor = system.dispatcher
-  
-  val api = new RestApi(system, requestTimeout(config)).routes
+
+  System.out.println("App started");
+  //val api = new RestApi(system, requestTimeout(config)).routes
 
 }
 
