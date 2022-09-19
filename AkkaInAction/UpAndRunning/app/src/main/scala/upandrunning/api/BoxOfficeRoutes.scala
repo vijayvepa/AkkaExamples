@@ -12,6 +12,8 @@ import upandrunning.actors.BoxOffice
 trait BoxOfficeRoutes extends BoxOfficeApi with BoxOfficeMarshalling {
 
   import StatusCodes.*
+  
+   
 
   def eventRoute: Route =
     pathPrefix("events" / Segment) { event =>
@@ -53,5 +55,6 @@ trait BoxOfficeRoutes extends BoxOfficeApi with BoxOfficeMarshalling {
       }
     }
 
+  def routes : Route = eventsRoute ~ eventRoute
 
 }

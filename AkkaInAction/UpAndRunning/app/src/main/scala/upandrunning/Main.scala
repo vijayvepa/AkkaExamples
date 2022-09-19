@@ -1,11 +1,15 @@
 package upandrunning
 
 import akka.actor.ActorSystem
+import akka.event.Logging
+import akka.http.scaladsl.Http.ServerBinding
 import com.typesafe.config.ConfigFactory
+import upandrunning.service.{BoxOfficeService, RequestTimeout}
+import akka.http.scaladsl.Http
 
-import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.{ExecutionContextExecutor, Future}
 
-object Main extends App{
+object Main extends App with RequestTimeout{
 
   val config = ConfigFactory.load()
   val host = config.getString("http.host")
@@ -14,8 +18,23 @@ object Main extends App{
   implicit val system: ActorSystem = ActorSystem()
   implicit val ec: ExecutionContextExecutor = system.dispatcher
 
-  System.out.println("App started");
-  //val api = new RestApi(system, requestTimeout(config)).routes
+
+
+  val boxOfficeService = new BoxOfficeService(system, requestTimeout(config))
+
+  val bindingFuture: Future[ServerBinding] =
+    Http().newServerAt(host, port).bind(boxOfficeService.routes)
+
+  val log = Logging(system.eventStream, "go-ticks")
+
+  bindingFuture.map{serverBinding =>
+    log.info(s"BoxOfficeService bount to ${serverBinding.localAddress}")
+  }.recoverWith({
+    case ex: Exception =>
+      log.error(ex, "Failed to bind to {}:{}!", host, port)
+      system.terminate()
+  })
+
 
 }
 
