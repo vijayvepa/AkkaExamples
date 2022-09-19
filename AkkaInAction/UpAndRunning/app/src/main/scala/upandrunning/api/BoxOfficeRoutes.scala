@@ -1,19 +1,14 @@
 package upandrunning.api
 
-import akka.actor.*
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport.*
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.*
-import akka.http.scaladsl.server.Directives.*
-import akka.pattern.ask
-import akka.util.Timeout
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server._
 import upandrunning.actors.BoxOffice
 
 trait BoxOfficeRoutes extends BoxOfficeApi with BoxOfficeMarshalling {
 
-  import StatusCodes.*
-  
-   
+  import StatusCodes._
 
   def eventRoute: Route =
     pathPrefix("events" / Segment) { event =>
@@ -47,7 +42,7 @@ trait BoxOfficeRoutes extends BoxOfficeApi with BoxOfficeMarshalling {
   def eventsRoute: Route =
     pathPrefix("events") {
       pathEndOrSingleSlash {
-        get {
+        Directives.get {
           onSuccess(getEvents()) { events =>
             complete(OK, events)
           }
