@@ -18,8 +18,6 @@ object Main extends App with RequestTimeout{
   implicit val system: ActorSystem = ActorSystem()
   implicit val ec: ExecutionContextExecutor = system.dispatcher
 
-
-
   val boxOfficeService = new BoxOfficeService(system, requestTimeout(config))
 
   val bindingFuture: Future[ServerBinding] =
