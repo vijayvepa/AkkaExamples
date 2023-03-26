@@ -1,4 +1,16 @@
+## Setup DB
+
+```shell
+docker ps
+# >shopping-cart-service-postgres-db-1
+
+docker exec -i shopping-cart-service-postgres-db-1 psql -U shopping-cart -t < ddl-scripts/create_tables.sql
+
+```
+
 ## Running the sample code
+
+
 
 1. Start a first node:
 
