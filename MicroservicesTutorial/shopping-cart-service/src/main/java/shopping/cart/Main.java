@@ -4,6 +4,7 @@ import akka.actor.typed.ActorSystem;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.management.cluster.bootstrap.ClusterBootstrap;
 import akka.management.javadsl.AkkaManagement;
+import com.typesafe.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,5 +25,12 @@ public class Main {
   public static void init(ActorSystem<Void> system) {
     AkkaManagement.get(system).start();
     ClusterBootstrap.get(system).start();
+
+    final Config config = system.settings().config();
+    final String grpcInterface = config.getString("shopping-cart-service.grpc.interface");
+    final int grpcPort = config.getInt("shopping-cart-service.grpc.port");
+
+    final ShoppingCartServiceImpl shoppingCartService = new ShoppingCartServiceImpl();
+    ShoppingCartServer.start(grpcInterface, grpcPort, system, shoppingCartService);
   }
 }
