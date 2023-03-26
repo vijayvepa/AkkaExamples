@@ -32,5 +32,6 @@ public class Main {
 
     final ShoppingCartServiceImpl shoppingCartService = new ShoppingCartServiceImpl();
     ShoppingCartServer.start(grpcInterface, grpcPort, system, shoppingCartService);
+    ShoppingCart.init(system);
   }
 }
