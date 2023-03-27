@@ -49,4 +49,18 @@ public class ShoppingCartTest {
     assertEquals(42, value.items().get("foo").intValue());
     assertEquals(new ItemAdded(CART_ID, "foo", 42), result.event());
   }
+
+  @Test
+  public void rejectAlreadyAddedItem(){
+    {
+      final EventSourcedBehaviorTestKit.CommandResultWithReply<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState, StatusReply<Summary>> result =
+          eventSourcedTestKit.runCommand(replyTo -> new AddItem("foo", 42, replyTo));
+      assertTrue(result.reply().isSuccess());
+    }
+    {
+      final EventSourcedBehaviorTestKit.CommandResultWithReply<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState, StatusReply<Summary>> result =
+          eventSourcedTestKit.runCommand(replyTo -> new AddItem("foo", 42, replyTo));
+      assertTrue(result.reply().isError());
+    }
+  }
 }

@@ -30,7 +30,7 @@ public class Main {
     final String grpcInterface = config.getString("shopping-cart-service.grpc.interface");
     final int grpcPort = config.getInt("shopping-cart-service.grpc.port");
 
-    final ShoppingCartServiceImpl shoppingCartService = new ShoppingCartServiceImpl();
+    final ShoppingCartServiceImpl shoppingCartService = new ShoppingCartServiceImpl(system);
     ShoppingCartServer.start(grpcInterface, grpcPort, system, shoppingCartService);
     ShoppingCart.init(system);
   }
