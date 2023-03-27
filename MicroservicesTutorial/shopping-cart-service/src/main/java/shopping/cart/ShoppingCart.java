@@ -21,6 +21,7 @@ import shopping.cart.event.ShoppingCartEvent;
 import shopping.cart.model.ShoppingCartState;
 
 import java.time.Duration;
+import java.util.HashMap;
 
 public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState> {
 
@@ -47,7 +48,7 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
 
   @Override
   public ShoppingCartState emptyState() {
-    return null;
+    return new ShoppingCartState(new HashMap<>());
   }
 
   @Override

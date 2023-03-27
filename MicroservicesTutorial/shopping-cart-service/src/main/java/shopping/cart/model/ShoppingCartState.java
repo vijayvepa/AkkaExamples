@@ -1,9 +1,11 @@
 package shopping.cart.model;
 
+import shopping.cart.CborSerializable;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public record ShoppingCartState(Map<String, Integer> items) {
+public record ShoppingCartState(Map<String, Integer> items)  implements CborSerializable {
   public Summary toSummary(){
     return new Summary(new HashMap<>(items));
   }

@@ -1,6 +1,7 @@
 package shopping.cart.event;
 
-public interface ShoppingCartEvent {
-  String getCartId();
+import shopping.cart.CborSerializable;
+
+public interface ShoppingCartEvent extends CborSerializable {
 
 }

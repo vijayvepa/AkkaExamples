@@ -1,6 +1,8 @@
 package shopping.cart.model;
 
+import shopping.cart.CborSerializable;
+
 import java.util.Map;
 
-public record Summary(Map<String, Integer> items) {
+public record Summary(Map<String, Integer> items) implements CborSerializable {
 }
