@@ -19,6 +19,7 @@ import akka.persistence.typed.javadsl.EventSourcedBehaviorWithEnforcedReplies;
 import akka.persistence.typed.javadsl.ReplyEffect;
 import shopping.cart.command.AddItem;
 import shopping.cart.command.Checkout;
+import shopping.cart.command.Get;
 import shopping.cart.event.CheckedOut;
 import shopping.cart.event.ItemAdded;
 import shopping.cart.event.ShoppingCartEvent;
@@ -29,6 +30,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Optional;
+
+import static akka.pattern.StatusReply.error;
+import static akka.pattern.StatusReply.success;
 
 public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState> {
 
@@ -60,7 +64,7 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
 
   @Override
   public CommandHandlerWithReply<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState> commandHandler() {
-    return openShoppingCart().orElse(checkedOutShoppingCart()).build();
+    return openShoppingCart().orElse(checkedOutShoppingCart()).orElse(getShoppingCart()).build();
   }
 
   private CommandHandlerWithReplyBuilderByState<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState, ShoppingCartState> openShoppingCart() {
@@ -79,10 +83,14 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
 
   }
 
+  private CommandHandlerWithReplyBuilderByState<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState, ShoppingCartState> getShoppingCart() {
+    return newCommandHandlerWithReplyBuilder().forAnyState().onCommand(Get.class, this::onGet);
+  }
+
   private ReplyEffect<ShoppingCartEvent, ShoppingCartState> replyError(
       ActorRef<StatusReply<Summary>> statusReplyActorRef,
       String error) {
-    return Effect().reply(statusReplyActorRef, StatusReply.error(error));
+    return Effect().reply(statusReplyActorRef, error(error));
   }
 
 
@@ -91,16 +99,16 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
       AddItem command) {
 
     if (state.hasItem(command.itemId())) {
-      return Effect().reply(command.replyTo(), StatusReply.error("Item " + command.itemId() + " ' was already added to this shopping cart."));
+      return Effect().reply(command.replyTo(), error("Item " + command.itemId() + " ' was already added to this shopping cart."));
 
     }
 
     if (command.quantity() <= 0) {
-      return Effect().reply(command.replyTo(), StatusReply.error("Quantity must be > 0"));
+      return Effect().reply(command.replyTo(), error("Quantity must be > 0"));
     }
 
     return Effect().persist(new ItemAdded(cartId, command.itemId(), command.quantity()))
-        .thenReply(command.replyTo(), updatedCart -> StatusReply.success(updatedCart.toSummary()));
+        .thenReply(command.replyTo(), updatedCart -> success(updatedCart.toSummary()));
   }
 
   @Override
@@ -123,11 +131,11 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
 
 
     if (state.isEmpty()) {
-      return Effect().reply(command.replyTo(), StatusReply.error("Cannot checkout an empty shopping cart."));
+      return Effect().reply(command.replyTo(), error("Cannot checkout an empty shopping cart."));
     }
 
     return Effect().persist(new CheckedOut(cartId, Instant.now()))
-        .thenReply(command.replyTo(), updatedCart -> StatusReply.success(updatedCart.toSummary()));
+        .thenReply(command.replyTo(), updatedCart -> success(updatedCart.toSummary()));
   }
 
 
@@ -136,5 +144,13 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
       CheckedOut event) {
     return state.checkout();
   }
+
+  private ReplyEffect<ShoppingCartEvent, ShoppingCartState> onGet(
+      ShoppingCartState state,
+      Get command) {
+
+    return Effect().reply(command.replyTo(), state.toSummary());
+  }
+
 
 }

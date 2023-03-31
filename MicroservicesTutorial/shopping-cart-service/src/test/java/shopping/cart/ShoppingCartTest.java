@@ -7,8 +7,10 @@ import com.typesafe.config.ConfigFactory;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.lmdbjava.Stat;
 import shopping.cart.command.AddItem;
 import shopping.cart.command.Checkout;
+import shopping.cart.command.Get;
 import shopping.cart.event.CheckedOut;
 import shopping.cart.event.ItemAdded;
 import shopping.cart.event.ShoppingCartEvent;
@@ -16,6 +18,7 @@ import shopping.cart.model.ShoppingCartState;
 import shopping.cart.model.Summary;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class ShoppingCartTest {
@@ -84,5 +87,19 @@ public class ShoppingCartTest {
         eventSourcedTestKit.runCommand(replyTo -> new AddItem("foo2", 42, replyTo));
 
     assertTrue(item2.reply().isError());
+  }
+
+  @Test
+  public void get(){
+    final EventSourcedBehaviorTestKit.CommandResultWithReply<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState, StatusReply<Summary>> foo =
+        eventSourcedTestKit.<StatusReply<Summary>>runCommand(replyTo -> new AddItem("foo", 42, replyTo));
+
+    assertTrue(foo.reply().isSuccess());
+
+    final EventSourcedBehaviorTestKit.CommandResultWithReply<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState, Summary> get = eventSourcedTestKit.<Summary>runCommand(Get::new);
+
+    assertFalse(get.reply().checkedOut());
+    assertEquals(1, get.reply().items().size());
+    assertEquals(42, get.reply().items().get("foo").intValue());
   }
 }
