@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import shopping.cart.command.AddItem;
+import shopping.cart.command.Checkout;
+import shopping.cart.event.CheckedOut;
 import shopping.cart.event.ItemAdded;
 import shopping.cart.event.ShoppingCartEvent;
 import shopping.cart.model.ShoppingCartState;
@@ -62,5 +64,25 @@ public class ShoppingCartTest {
           eventSourcedTestKit.runCommand(replyTo -> new AddItem("foo", 42, replyTo));
       assertTrue(result.reply().isError());
     }
+  }
+
+  @Test
+  public void checkout(){
+    final EventSourcedBehaviorTestKit.CommandResultWithReply<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState, StatusReply<Summary>> item =
+        eventSourcedTestKit.runCommand(replyTo -> new AddItem("foo", 42, replyTo));
+
+    assertTrue(item.reply().isSuccess());
+
+    final EventSourcedBehaviorTestKit.CommandResultWithReply<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState, StatusReply<Summary>> checkout =
+        eventSourcedTestKit.runCommand(Checkout::new);
+
+    assertTrue(checkout.reply().isSuccess());
+    assertTrue(checkout.event() instanceof CheckedOut);
+    assertEquals(CART_ID, ((CheckedOut) checkout.event()).cartId());
+
+    final EventSourcedBehaviorTestKit.CommandResultWithReply<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState, StatusReply<Summary>> item2 =
+        eventSourcedTestKit.runCommand(replyTo -> new AddItem("foo2", 42, replyTo));
+
+    assertTrue(item2.reply().isError());
   }
 }
