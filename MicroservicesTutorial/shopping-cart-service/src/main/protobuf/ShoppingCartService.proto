@@ -10,12 +10,20 @@ service ShoppingCartService {
   rpc RemoveItem(RemoveItemRequest) returns (Cart) {}
   rpc Checkout (CheckoutRequest) returns (Cart) {}
   rpc GetCart(GetCartRequest) returns (Cart) {}
+  rpc AdjustItemQuantity(AdjustItemQuantityRequest) returns (Cart) {}
 }
 
 message AddItemRequest{
   string cartId = 1;
   string itemId = 2;
   int32 quantity = 3;
+
+}
+
+message AdjustItemQuantityRequest{
+  string cartId = 1;
+  string itemId = 2;
+  int32 updatedQuantity = 3;
 
 }
 

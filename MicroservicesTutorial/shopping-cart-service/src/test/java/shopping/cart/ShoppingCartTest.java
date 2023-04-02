@@ -154,6 +154,5 @@ public class ShoppingCartTest {
     assertTrue(update2.reply().isError());
     assertEquals("Item not found: foo", update2.reply().getError().getMessage());
 
-
   }
 }

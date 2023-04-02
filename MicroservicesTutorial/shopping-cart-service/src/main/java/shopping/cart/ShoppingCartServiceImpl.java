@@ -7,11 +7,13 @@ import akka.cluster.sharding.typed.javadsl.EntityRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shopping.cart.command.AddItem;
+import shopping.cart.command.AdjustItemQuantity;
 import shopping.cart.command.Checkout;
 import shopping.cart.command.Get;
 import shopping.cart.command.RemoveItem;
 import shopping.cart.model.Summary;
 import shopping.cart.proto.AddItemRequest;
+import shopping.cart.proto.AdjustItemQuantityRequest;
 import shopping.cart.proto.Cart;
 import shopping.cart.proto.CheckoutRequest;
 import shopping.cart.proto.GetCartRequest;
@@ -20,6 +22,8 @@ import shopping.cart.proto.ShoppingCartService;
 
 import java.time.Duration;
 import java.util.concurrent.CompletionStage;
+
+import static shopping.cart.GrpcUtils.convertError;
 
 
 public class ShoppingCartServiceImpl implements ShoppingCartService {
@@ -43,7 +47,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     final CompletionStage<Cart> cart = reply.thenApply(Mapper::toProtoSummary);
 
-    return GrpcUtils.convertError(cart);
+    return convertError(cart);
   }
 
   @Override
@@ -55,7 +59,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     final CompletionStage<Cart> response = reply.thenApply(Mapper::toProtoSummary);
 
-    return GrpcUtils.convertError(response);
+    return convertError(response);
   }
 
   private EntityRef<ShoppingCartCommand> getEntityRef(String entityId) {
@@ -69,7 +73,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     final EntityRef<ShoppingCartCommand> entityRef = getEntityRef(in.getCartId());
     final CompletionStage<Summary> summary = entityRef.askWithStatus(Checkout::new, timeout);
     final CompletionStage<Cart> cart = summary.thenApply(Mapper::toProtoSummary);
-    return GrpcUtils.convertError(cart);
+    return convertError(cart);
 
   }
 
@@ -85,8 +89,20 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         Mapper::toProtoSummary,
         String.format("Cart %s is empty", in.getCartId()));
 
-    return GrpcUtils.convertError(protoCart);
+    return convertError(protoCart);
 
+  }
+
+  @Override
+  public CompletionStage<Cart> adjustItemQuantity(AdjustItemQuantityRequest in) {
+    logger.info("Performing AdjustItemQuantity  to entity {}", in.getCartId());
+    final EntityRef<ShoppingCartCommand> entityRef = getEntityRef(in.getCartId());
+
+    final CompletionStage<Summary> reply = entityRef.askWithStatus(replyTo -> new AdjustItemQuantity(in.getItemId(), in.getUpdatedQuantity(), replyTo), timeout);
+
+    final CompletionStage<Cart> response = reply.thenApply(Mapper::toProtoSummary);
+
+    return convertError(response);
   }
 
 
