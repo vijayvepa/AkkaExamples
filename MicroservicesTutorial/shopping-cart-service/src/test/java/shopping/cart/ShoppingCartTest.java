@@ -37,7 +37,7 @@ public class ShoppingCartTest {
               .withFallback(EventSourcedBehaviorTestKit.config()));
 
   private final EventSourcedBehaviorTestKit<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState> eventSourcedTestKit =
-      EventSourcedBehaviorTestKit.create(testKit.system(), ShoppingCart.create(CART_ID));
+      EventSourcedBehaviorTestKit.create(testKit.system(), ShoppingCart.create(CART_ID, "ProjectionTag"));
 
   @Before
   public void beforeEach(){

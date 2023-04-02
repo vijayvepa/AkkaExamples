@@ -7,10 +7,15 @@ import akka.management.javadsl.AkkaManagement;
 import com.typesafe.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import shopping.cart.repository.ItemPopularityRepository;
+import shopping.cart.repository.SpringIntegration;
 
 public class Main {
 
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
+
 
   public static void main(String[] args) {
     ActorSystem<Void> system = ActorSystem.create(Behaviors.empty(), "ShoppingCartService");
@@ -33,5 +38,14 @@ public class Main {
     final ShoppingCartServiceImpl shoppingCartService = new ShoppingCartServiceImpl(system);
     ShoppingCartServer.start(grpcInterface, grpcPort, system, shoppingCartService);
     ShoppingCart.init(system);
+
+    ApplicationContext springContext = SpringIntegration.applicationContext(system);
+
+    ItemPopularityRepository itemPopularityRepository =
+        springContext.getBean(ItemPopularityRepository.class);
+    final JpaTransactionManager jpaTransactionManager =
+        springContext.getBean(JpaTransactionManager.class);
+
+    ItemPopularityProjection.init(system, jpaTransactionManager, itemPopularityRepository);
   }
 }

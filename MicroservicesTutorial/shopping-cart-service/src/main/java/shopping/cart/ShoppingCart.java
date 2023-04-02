@@ -7,6 +7,7 @@ import akka.actor.typed.SupervisorStrategy;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.cluster.sharding.typed.javadsl.ClusterSharding;
 import akka.cluster.sharding.typed.javadsl.Entity;
+import akka.cluster.sharding.typed.javadsl.EntityContext;
 import akka.cluster.sharding.typed.javadsl.EntityTypeKey;
 import akka.pattern.StatusReply;
 import akka.persistence.typed.PersistenceId;
@@ -32,32 +33,53 @@ import shopping.cart.model.Summary;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static akka.pattern.StatusReply.error;
 import static akka.pattern.StatusReply.success;
 
 public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState> {
 
+  static final List<String> TAGS = List.of("carts-0", "carts-1", "carts-2", "carts-3", "carts-4");
+
   static final EntityTypeKey<ShoppingCartCommand> ENTITY_TYPE_KEY =
       EntityTypeKey.create(ShoppingCartCommand.class, "ShoppingCart");
 
   private final String cartId;
+  private final String projectionTag;
 
-  private ShoppingCart(String cartId) {
+  private ShoppingCart(
+      String cartId,
+      String projectionTag) {
     super(PersistenceId.of(ENTITY_TYPE_KEY.name(), cartId));
+    this.projectionTag = projectionTag;
     SupervisorStrategy.restartWithBackoff(Duration.ofMillis(200), Duration.ofSeconds(5), 0.1);
     this.cartId = cartId;
   }
 
   public static void init(ActorSystem<?> system) {
     final ClusterSharding clusterSharding = ClusterSharding.get(system);
-    clusterSharding.init(Entity.of(ENTITY_TYPE_KEY, entityContext -> ShoppingCart.create(entityContext.getEntityId())));
+    clusterSharding.init(Entity.of(ENTITY_TYPE_KEY, entityContext -> ShoppingCart.create(entityContext.getEntityId(), getRandomProjectionTag(entityContext))));
   }
 
-  public static Behavior<ShoppingCartCommand> create(String cartId) {
-    return Behaviors.setup(ctx -> EventSourcedBehavior.start(new ShoppingCart(cartId), ctx));
+  private static String getRandomProjectionTag(EntityContext<ShoppingCartCommand> entityContext) {
+    final int tagIndex = entityContext.getEntityId().hashCode() % TAGS.size();
+    return TAGS.get(tagIndex);
+  }
+
+  public static Behavior<ShoppingCartCommand> create(
+      String cartId,
+      String projectionTag) {
+    return Behaviors.setup(ctx -> EventSourcedBehavior.start(new ShoppingCart(cartId, projectionTag), ctx));
+  }
+
+  @Override
+  public Set<String> tagsFor(ShoppingCartEvent shoppingCartEvent) {
+    return Collections.singleton(projectionTag);
   }
 
   @Override
