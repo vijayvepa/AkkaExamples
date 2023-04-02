@@ -11,6 +11,7 @@ import org.lmdbjava.Stat;
 import shopping.cart.command.AddItem;
 import shopping.cart.command.Checkout;
 import shopping.cart.command.Get;
+import shopping.cart.command.RemoveItem;
 import shopping.cart.event.CheckedOut;
 import shopping.cart.event.ItemAdded;
 import shopping.cart.event.ShoppingCartEvent;
@@ -101,5 +102,27 @@ public class ShoppingCartTest {
     assertFalse(get.reply().checkedOut());
     assertEquals(1, get.reply().items().size());
     assertEquals(42, get.reply().items().get("foo").intValue());
+  }
+
+  @Test
+  public void remove(){
+    final EventSourcedBehaviorTestKit.CommandResultWithReply<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState, StatusReply<Summary>> add =
+        eventSourcedTestKit.<StatusReply<Summary>>runCommand(replyTo -> new AddItem("foo", 43, replyTo));
+
+    assertTrue(add.reply().isSuccess());
+    assertEquals(1, add.reply().getValue().items().size());
+    assertEquals(43, add.reply().getValue().items().get("foo").intValue());
+
+    final EventSourcedBehaviorTestKit.CommandResultWithReply<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState, StatusReply<Summary>> remove =
+        eventSourcedTestKit.<StatusReply<Summary>>runCommand(replyTo -> new RemoveItem("foo", replyTo));
+
+    assertTrue(remove.reply().isSuccess());
+    assertEquals(0, remove.reply().getValue().items().size());
+
+    final EventSourcedBehaviorTestKit.CommandResultWithReply<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState, StatusReply<Summary>> remove2 =
+        eventSourcedTestKit.<StatusReply<Summary>>runCommand(replyTo -> new RemoveItem("foo", replyTo));
+
+    assertTrue(remove2.reply().isError());
+    assertEquals("Item not found: foo", remove2.reply().getError().getMessage());
   }
 }

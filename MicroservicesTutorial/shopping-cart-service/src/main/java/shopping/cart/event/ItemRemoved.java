@@ -1,4 +1,6 @@
 package shopping.cart.event;
 
-public record ItemRemoved(String cartId, String itemId) {
+import shopping.cart.CborSerializable;
+
+public record ItemRemoved(String cartId, String itemId) implements ShoppingCartEvent, CborSerializable {
 }

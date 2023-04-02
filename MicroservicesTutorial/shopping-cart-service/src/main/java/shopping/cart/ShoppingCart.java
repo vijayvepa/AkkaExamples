@@ -20,8 +20,10 @@ import akka.persistence.typed.javadsl.ReplyEffect;
 import shopping.cart.command.AddItem;
 import shopping.cart.command.Checkout;
 import shopping.cart.command.Get;
+import shopping.cart.command.RemoveItem;
 import shopping.cart.event.CheckedOut;
 import shopping.cart.event.ItemAdded;
+import shopping.cart.event.ItemRemoved;
 import shopping.cart.event.ShoppingCartEvent;
 import shopping.cart.model.ShoppingCartState;
 import shopping.cart.model.Summary;
@@ -70,7 +72,8 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
     final CommandHandlerWithReplyBuilder<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState> builder = newCommandHandlerWithReplyBuilder();
     return builder.forState(state -> !state.isCheckedOut())
         .onCommand(AddItem.class, this::onAddItem)
-        .onCommand(Checkout.class, this::onCheckout);
+        .onCommand(Checkout.class, this::onCheckout)
+        .onCommand(RemoveItem.class, this::onRemoveItem);
 
   }
 
@@ -78,6 +81,7 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
     final CommandHandlerWithReplyBuilder<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState> builder = newCommandHandlerWithReplyBuilder();
     return builder.forState(ShoppingCartState::isCheckedOut)
         .onCommand(AddItem.class, (state, command) -> replyError(command.replyTo(), "Can't add items to checked out cart"))
+        .onCommand(RemoveItem.class, (state, command) -> replyError(command.replyTo(), "Can't remove items from checked out cart"))
         .onCommand(Checkout.class, (state, command) -> replyError(command.replyTo(), "Already checked out"));
 
   }
@@ -133,7 +137,9 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
   public EventHandler<ShoppingCartState, ShoppingCartEvent> eventHandler() {
     return newEventHandlerBuilder().forAnyState()
         .onEvent(ItemAdded.class, this::updateItem)
-        .onEvent(CheckedOut.class, this::handleCheckedOut).build();
+        .onEvent(CheckedOut.class, this::handleCheckedOut)
+        .onEvent(ItemRemoved.class, this::handleItemRemoved)
+        .build();
   }
 
   private ShoppingCartState updateItem(
@@ -146,6 +152,26 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
       ShoppingCartState state,
       CheckedOut event) {
     return state.checkout();
+  }
+
+  private ReplyEffect<ShoppingCartEvent, ShoppingCartState> onRemoveItem(
+      ShoppingCartState state,
+      RemoveItem command) {
+
+
+    if (!state.hasItem(command.itemId())) {
+      return Effect().reply(command.replyTo(), error("Item not found: " + command.itemId()));
+    }
+
+    return Effect().persist(new ItemRemoved(cartId, command.itemId()))
+        .thenReply(command.replyTo(), updatedItem -> success(state.toSummary()));
+  }
+
+
+  private ShoppingCartState handleItemRemoved(
+      ShoppingCartState state,
+      ItemRemoved event) {
+    return state.removeItem(event.itemId());
   }
 
 

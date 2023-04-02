@@ -47,6 +47,11 @@ public final class ShoppingCartState implements CborSerializable {
     return this;
   }
 
+  public ShoppingCartState removeItem(String itemId){
+    items.remove(itemId);
+    return this;
+  }
+
   public boolean isCheckedOut() {
     return checkoutDate.isPresent();
   }
