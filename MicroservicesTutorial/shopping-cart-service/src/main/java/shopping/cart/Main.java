@@ -31,14 +31,6 @@ public class Main {
     AkkaManagement.get(system).start();
     ClusterBootstrap.get(system).start();
 
-    final Config config = system.settings().config();
-    final String grpcInterface = config.getString("shopping-cart-service.grpc.interface");
-    final int grpcPort = config.getInt("shopping-cart-service.grpc.port");
-
-    final ShoppingCartServiceImpl shoppingCartService = new ShoppingCartServiceImpl(system);
-    ShoppingCartServer.start(grpcInterface, grpcPort, system, shoppingCartService);
-    ShoppingCart.init(system);
-
     ApplicationContext springContext = SpringIntegration.applicationContext(system);
 
     ItemPopularityRepository itemPopularityRepository =
@@ -47,5 +39,15 @@ public class Main {
         springContext.getBean(JpaTransactionManager.class);
 
     ItemPopularityProjection.init(system, jpaTransactionManager, itemPopularityRepository);
+
+    final Config config = system.settings().config();
+    final String grpcInterface = config.getString("shopping-cart-service.grpc.interface");
+    final int grpcPort = config.getInt("shopping-cart-service.grpc.port");
+
+    final ShoppingCartServiceImpl shoppingCartService = new ShoppingCartServiceImpl(system, itemPopularityRepository);
+    ShoppingCartServer.start(grpcInterface, grpcPort, system, shoppingCartService);
+    ShoppingCart.init(system);
+
+
   }
 }

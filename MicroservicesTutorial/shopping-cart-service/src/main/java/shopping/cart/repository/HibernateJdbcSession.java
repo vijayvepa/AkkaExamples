@@ -5,7 +5,7 @@ import akka.projection.jdbc.JdbcSession;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Objects;
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import org.hibernate.Session;
 import org.hibernate.jdbc.ReturningWork;
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
