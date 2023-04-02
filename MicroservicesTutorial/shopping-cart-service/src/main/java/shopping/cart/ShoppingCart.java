@@ -18,11 +18,13 @@ import akka.persistence.typed.javadsl.EventSourcedBehavior;
 import akka.persistence.typed.javadsl.EventSourcedBehaviorWithEnforcedReplies;
 import akka.persistence.typed.javadsl.ReplyEffect;
 import shopping.cart.command.AddItem;
+import shopping.cart.command.AdjustItemQuantity;
 import shopping.cart.command.Checkout;
 import shopping.cart.command.Get;
 import shopping.cart.command.RemoveItem;
 import shopping.cart.event.CheckedOut;
 import shopping.cart.event.ItemAdded;
+import shopping.cart.event.ItemQuantityAdjusted;
 import shopping.cart.event.ItemRemoved;
 import shopping.cart.event.ShoppingCartEvent;
 import shopping.cart.model.ShoppingCartState;
@@ -73,7 +75,8 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
     return builder.forState(state -> !state.isCheckedOut())
         .onCommand(AddItem.class, this::onAddItem)
         .onCommand(Checkout.class, this::onCheckout)
-        .onCommand(RemoveItem.class, this::onRemoveItem);
+        .onCommand(RemoveItem.class, this::onRemoveItem)
+        .onCommand(AdjustItemQuantity.class, this::onAdjustItemQuantity);
 
   }
 
@@ -82,6 +85,8 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
     return builder.forState(ShoppingCartState::isCheckedOut)
         .onCommand(AddItem.class, (state, command) -> replyError(command.replyTo(), "Can't add items to checked out cart"))
         .onCommand(RemoveItem.class, (state, command) -> replyError(command.replyTo(), "Can't remove items from checked out cart"))
+        .onCommand(AdjustItemQuantity.class, (state, command) -> replyError(command.replyTo(), "Can't adjust quantity on items from checked out cart"))
+
         .onCommand(Checkout.class, (state, command) -> replyError(command.replyTo(), "Already checked out"));
 
   }
@@ -139,6 +144,7 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
         .onEvent(ItemAdded.class, this::updateItem)
         .onEvent(CheckedOut.class, this::handleCheckedOut)
         .onEvent(ItemRemoved.class, this::handleItemRemoved)
+        .onEvent(ItemQuantityAdjusted.class, this::handleItemQuantityAdjusted)
         .build();
   }
 
@@ -172,6 +178,30 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
       ShoppingCartState state,
       ItemRemoved event) {
     return state.removeItem(event.itemId());
+  }
+
+  private ReplyEffect<ShoppingCartEvent, ShoppingCartState> onAdjustItemQuantity(
+      ShoppingCartState state,
+      AdjustItemQuantity command) {
+
+
+    if (!state.hasItem(command.itemId())) {
+      return Effect().reply(command.replyTo(), error("Item not found: " + command.itemId()));
+    }
+
+    if (command.updatedQuantity() < 0) {
+      return Effect().reply(command.replyTo(), error("Quantity {} must be > 0" + command.updatedQuantity()));
+    }
+
+    return Effect().persist(new ItemQuantityAdjusted(cartId, command.itemId(), command.updatedQuantity()))
+        .thenReply(command.replyTo(), updatedItem -> success(updatedItem.toSummary()));
+  }
+
+
+  private ShoppingCartState handleItemQuantityAdjusted(
+      ShoppingCartState state,
+      ItemQuantityAdjusted event) {
+    return state.updateItem(event.itemId(), event.updatedQuantity());
   }
 
 

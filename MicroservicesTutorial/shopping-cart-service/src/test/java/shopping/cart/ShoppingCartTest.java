@@ -7,8 +7,8 @@ import com.typesafe.config.ConfigFactory;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.lmdbjava.Stat;
 import shopping.cart.command.AddItem;
+import shopping.cart.command.AdjustItemQuantity;
 import shopping.cart.command.Checkout;
 import shopping.cart.command.Get;
 import shopping.cart.command.RemoveItem;
@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+@SuppressWarnings("RedundantTypeArguments")
 public class ShoppingCartTest {
 
   private static final String CART_ID = "testCart";
@@ -124,5 +125,35 @@ public class ShoppingCartTest {
 
     assertTrue(remove2.reply().isError());
     assertEquals("Item not found: foo", remove2.reply().getError().getMessage());
+  }
+
+  @Test
+  public void adjustItemQuantity(){
+    final EventSourcedBehaviorTestKit.CommandResultWithReply<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState, StatusReply<Summary>> add =
+        eventSourcedTestKit.<StatusReply<Summary>>runCommand(replyTo -> new AddItem("foo", 44, replyTo));
+
+    assertTrue(add.reply().isSuccess());
+    assertEquals(1, add.reply().getValue().items().size());
+    assertEquals(44, add.reply().getValue().items().get("foo").intValue());
+
+    final EventSourcedBehaviorTestKit.CommandResultWithReply<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState, StatusReply<Summary>> update =
+        eventSourcedTestKit.<StatusReply<Summary>>runCommand(replyTo -> new AdjustItemQuantity("foo", 40, replyTo));
+
+    assertTrue(update.reply().isSuccess());
+    assertEquals(1, update.reply().getValue().items().size());
+    assertEquals(40, update.reply().getValue().items().get("foo").intValue());
+
+    final EventSourcedBehaviorTestKit.CommandResultWithReply<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState, StatusReply<Summary>> remove =
+        eventSourcedTestKit.<StatusReply<Summary>>runCommand(replyTo -> new RemoveItem("foo", replyTo));
+    assertTrue(remove.reply().isSuccess());
+    assertEquals(0, remove.reply().getValue().items().size());
+
+    final EventSourcedBehaviorTestKit.CommandResultWithReply<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState, StatusReply<Summary>> update2 =
+        eventSourcedTestKit.<StatusReply<Summary>>runCommand(replyTo -> new AdjustItemQuantity("foo", 20, replyTo));
+
+    assertTrue(update2.reply().isError());
+    assertEquals("Item not found: foo", update2.reply().getError().getMessage());
+
+
   }
 }
