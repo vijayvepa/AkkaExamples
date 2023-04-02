@@ -9,11 +9,13 @@ import org.slf4j.LoggerFactory;
 import shopping.cart.command.AddItem;
 import shopping.cart.command.Checkout;
 import shopping.cart.command.Get;
+import shopping.cart.command.RemoveItem;
 import shopping.cart.model.Summary;
 import shopping.cart.proto.AddItemRequest;
 import shopping.cart.proto.Cart;
 import shopping.cart.proto.CheckoutRequest;
 import shopping.cart.proto.GetCartRequest;
+import shopping.cart.proto.RemoveItemRequest;
 import shopping.cart.proto.ShoppingCartService;
 
 import java.time.Duration;
@@ -42,6 +44,18 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     final CompletionStage<Cart> cart = reply.thenApply(Mapper::toProtoSummary);
 
     return GrpcUtils.convertError(cart);
+  }
+
+  @Override
+  public CompletionStage<Cart> removeItem(RemoveItemRequest in) {
+    logger.info("Performing RemoveItem  to cart {}", in.getCartId());
+    final EntityRef<ShoppingCartCommand> entityRef = getEntityRef(in.getCartId());
+
+    final CompletionStage<Summary> reply = entityRef.askWithStatus(replyTo -> new RemoveItem(in.getItemId(), replyTo), timeout);
+
+    final CompletionStage<Cart> response = reply.thenApply(Mapper::toProtoSummary);
+
+    return GrpcUtils.convertError(response);
   }
 
   private EntityRef<ShoppingCartCommand> getEntityRef(String entityId) {

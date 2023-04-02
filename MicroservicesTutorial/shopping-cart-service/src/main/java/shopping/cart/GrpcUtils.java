@@ -8,7 +8,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
 public class GrpcUtils {
-  static <TModel, TProto> CompletionStage<TProto> handleNotFound(
+  public static <TModel, TProto> CompletionStage<TProto> handleNotFound(
       CompletionStage<TModel> get,
       Function<TModel, Boolean> isEmpty,
       Function<TModel, TProto> toProto,
@@ -22,7 +22,7 @@ public class GrpcUtils {
     });
   }
 
-  static  <T> CompletionStage<T> convertError(CompletionStage<T> response) {
+  public static  <T> CompletionStage<T> convertError(CompletionStage<T> response) {
     return response.exceptionally(ex -> {
       if (ex instanceof TimeoutException) {
         throw new GrpcServiceException(Status.UNAVAILABLE.withDescription("Operation timed out"));

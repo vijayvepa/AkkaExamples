@@ -28,24 +28,25 @@ public class ShoppingCartServer {
       String host,
       int port,
       ActorSystem<?> system,
-      ShoppingCartService grpcService) {
+      ShoppingCartService shoppingCartService) {
 
     @SuppressWarnings("unchecked")
     Function<HttpRequest, CompletionStage<HttpResponse>> service =
         ServiceHandler.concatOrNotFound(
-            getGrpcServiceSystem(system, grpcService),
+            getShoppingCartServiceHandler(system, shoppingCartService),
             getServerReflection(system));
 
-    CompletionStage<ServerBinding> bound =
+    CompletionStage<ServerBinding> serverBinding =
         Http.get(system).newServerAt(host, port).bind(service);
 
-    bound.whenComplete(
-        (binding, ex) -> setupCoordinatedShutdown(binding, ex, system));
+    serverBinding.whenComplete(
+        (binding, ex) -> onBindingComplete(binding, ex, system));
   }
 
-  private static Function<HttpRequest, CompletionStage<HttpResponse>> getGrpcServiceSystem(
+  private static Function<HttpRequest, CompletionStage<HttpResponse>> getShoppingCartServiceHandler(
       ActorSystem<?> system,
       ShoppingCartService grpcService) {
+
     return ShoppingCartServiceHandlerFactory.create(grpcService, system);
   }
 
@@ -60,7 +61,8 @@ public class ShoppingCartServer {
         Collections.singletonList(ShoppingCartService.description), system);
   }
 
-  static void setupCoordinatedShutdown (ServerBinding binding, Throwable ex, ActorSystem<?> system){
+  static void onBindingComplete(ServerBinding binding, Throwable ex, ActorSystem<?> system){
+
     if (binding == null) {
       system.log().error("Failed to bind gRPC endpoint, terminating system", ex);
       system.terminate();
@@ -68,12 +70,9 @@ public class ShoppingCartServer {
     }
 
     binding.addToCoordinatedShutdown(Duration.ofSeconds(3), system);
+
     InetSocketAddress address = binding.localAddress();
-    system
-        .log()
-        .info(
-            "Shopping online at gRPC server {}:{}",
-            address.getHostString(),
-            address.getPort());
+    system.log().info(
+        "Shopping API online at gRPC server {}:{}", address.getHostString(), address.getPort());
   }
 }
