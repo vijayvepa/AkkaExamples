@@ -41,6 +41,12 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
 
   private final String cartId;
 
+  private ShoppingCart(String cartId) {
+    super(PersistenceId.of(ENTITY_TYPE_KEY.name(), cartId));
+    SupervisorStrategy.restartWithBackoff(Duration.ofMillis(200), Duration.ofSeconds(5), 0.1);
+    this.cartId = cartId;
+  }
+
   public static void init(ActorSystem<?> system) {
     final ClusterSharding clusterSharding = ClusterSharding.get(system);
     clusterSharding.init(Entity.of(ENTITY_TYPE_KEY, entityContext -> ShoppingCart.create(entityContext.getEntityId())));
@@ -49,13 +55,6 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
   public static Behavior<ShoppingCartCommand> create(String cartId) {
     return Behaviors.setup(ctx -> EventSourcedBehavior.start(new ShoppingCart(cartId), ctx));
   }
-
-  private ShoppingCart(String cartId) {
-    super(PersistenceId.of(ENTITY_TYPE_KEY.name(), cartId));
-    SupervisorStrategy.restartWithBackoff(Duration.ofMillis(200), Duration.ofSeconds(5), 0.1);
-    this.cartId = cartId;
-  }
-
 
   @Override
   public ShoppingCartState emptyState() {
@@ -87,13 +86,6 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
     return newCommandHandlerWithReplyBuilder().forAnyState().onCommand(Get.class, this::onGet);
   }
 
-  private ReplyEffect<ShoppingCartEvent, ShoppingCartState> replyError(
-      ActorRef<StatusReply<Summary>> statusReplyActorRef,
-      String error) {
-    return Effect().reply(statusReplyActorRef, error(error));
-  }
-
-
   private ReplyEffect<ShoppingCartEvent, ShoppingCartState> onAddItem(
       ShoppingCartState state,
       AddItem command) {
@@ -111,20 +103,6 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
         .thenReply(command.replyTo(), updatedCart -> success(updatedCart.toSummary()));
   }
 
-  @Override
-  public EventHandler<ShoppingCartState, ShoppingCartEvent> eventHandler() {
-    return newEventHandlerBuilder().forAnyState()
-        .onEvent(ItemAdded.class, this::updateItem)
-        .onEvent(CheckedOut.class, this::handleCheckedOut).build();
-  }
-
-  private ShoppingCartState updateItem(
-      ShoppingCartState state,
-      ItemAdded event) {
-    return state.updateItem(event.itemId(), event.quantity());
-  }
-
-
   private ReplyEffect<ShoppingCartEvent, ShoppingCartState> onCheckout(
       ShoppingCartState state,
       Checkout command) {
@@ -138,11 +116,10 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
         .thenReply(command.replyTo(), updatedCart -> success(updatedCart.toSummary()));
   }
 
-
-  private ShoppingCartState handleCheckedOut(
-      ShoppingCartState state,
-      CheckedOut event) {
-    return state.checkout();
+  private ReplyEffect<ShoppingCartEvent, ShoppingCartState> replyError(
+      ActorRef<StatusReply<Summary>> statusReplyActorRef,
+      String error) {
+    return Effect().reply(statusReplyActorRef, error(error));
   }
 
   private ReplyEffect<ShoppingCartEvent, ShoppingCartState> onGet(
@@ -150,6 +127,25 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
       Get command) {
 
     return Effect().reply(command.replyTo(), state.toSummary());
+  }
+
+  @Override
+  public EventHandler<ShoppingCartState, ShoppingCartEvent> eventHandler() {
+    return newEventHandlerBuilder().forAnyState()
+        .onEvent(ItemAdded.class, this::updateItem)
+        .onEvent(CheckedOut.class, this::handleCheckedOut).build();
+  }
+
+  private ShoppingCartState updateItem(
+      ShoppingCartState state,
+      ItemAdded event) {
+    return state.updateItem(event.itemId(), event.quantity());
+  }
+
+  private ShoppingCartState handleCheckedOut(
+      ShoppingCartState state,
+      CheckedOut event) {
+    return state.checkout();
   }
 
 
