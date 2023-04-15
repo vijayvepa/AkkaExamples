@@ -32,7 +32,6 @@ import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
-import shopping.cart.event.CheckedOut;
 import shopping.cart.event.ItemAdded;
 import shopping.cart.event.ShoppingCartEvent;
 
@@ -42,11 +41,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
-import static akka.Done.done;
-
-public final class PublishEventsProjection {
-
-  private PublishEventsProjection() {
+public final class ProduceEventsProjection {
+  private ProduceEventsProjection() {
   }
 
   public static void init(ActorSystem<?> system, JpaTransactionManager transactionManager) {
@@ -55,7 +51,7 @@ public final class PublishEventsProjection {
 
     ShardedDaemonProcess.get(system).init(
         ProjectionBehavior.Command.class,
-        "PublishEventsProjection",
+        "ProduceEventsProjection",
         ShoppingCart.TAGS.size(),
         index -> ProjectionBehavior.create(createProjectionFor(system, transactionManager, topic, sendProducer, index)),
         ShardedDaemonProcessSettings.create(system),
@@ -82,19 +78,19 @@ public final class PublishEventsProjection {
     SourceProvider<Offset, EventEnvelope<ShoppingCartEvent>> sourceProvider = EventSourcedProvider.eventsByTag(system, JdbcReadJournal.Identifier(), tag);
 
     return JdbcProjection.atLeastOnceAsync(
-        ProjectionId.of("PublishEventsProjection", tag),
+        ProjectionId.of("ProduceEventsProjection", tag),
         sourceProvider,
         () -> new JpaSession(transactionManager),
-        () -> new PublishEventsProjectionHandler(topic, sendProducer),
+        () -> new ProduceEventsProjectionHandler(topic, sendProducer),
         system);
   }
 
-  public static final class PublishEventsProjectionHandler extends Handler<EventEnvelope<ShoppingCartEvent>> {
+  public static final class ProduceEventsProjectionHandler extends Handler<EventEnvelope<ShoppingCartEvent>> {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final String topic;
     private final SendProducer<String, byte[]> sendProducer;
 
-    public PublishEventsProjectionHandler(
+    public ProduceEventsProjectionHandler(
         String topic,
         SendProducer<String, byte[]> sendProducer) {
       this.topic = topic;
@@ -113,29 +109,22 @@ public final class PublishEventsProjection {
           .send(producerRecord)
           .thenApply(recordMetadata -> {
             logger.info("Published event [{}] to topic/partition {}/{}", event, topic, recordMetadata.partition());
-            return done();
+            return Done.done();
           });
     }
 
     private static byte[] serialize(ShoppingCartEvent event) {
       final ByteString protoMessage;
       final String fullName;
-      if (event instanceof ItemAdded itemAdded) {
+      if (event instanceof ItemAdded someItemAdded) {
         protoMessage =
             shopping.cart.proto.ItemAdded.newBuilder()
-                .setCartId(itemAdded.cartId())
-                .setItemId(itemAdded.itemId())
-                .setQuantity(itemAdded.quantity())
+                .setCartId(someItemAdded.cartId())
+                .setItemId(someItemAdded.itemId())
+                .setQuantity(someItemAdded.quantity())
                 .build()
                 .toByteString();
         fullName = shopping.cart.proto.ItemAdded.getDescriptor().getFullName();
-      } else if (event instanceof CheckedOut checkedOut) {
-        protoMessage =
-            shopping.cart.proto.CheckedOut.newBuilder()
-                .setCartId(checkedOut.cartId())
-                .build()
-                .toByteString();
-        fullName = shopping.cart.proto.CheckedOut.getDescriptor().getFullName();
       } else {
         throw new IllegalArgumentException("Unknown event type: " + event.getClass());
       }

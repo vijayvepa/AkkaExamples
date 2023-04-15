@@ -39,7 +39,7 @@ public class Main {
         springContext.getBean(JpaTransactionManager.class);
 
     ItemPopularityProjection.init(system, jpaTransactionManager, itemPopularityRepository);
-    PublishEventsProjection.init(system, jpaTransactionManager);
+    ProduceEventsProjection.init(system, jpaTransactionManager);
 
     final Config config = system.settings().config();
     final String grpcInterface = config.getString("shopping-cart-service.grpc.interface");
