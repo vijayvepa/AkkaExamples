@@ -30,3 +30,20 @@ docker exec -i shopping-cart-service-postgres-db-1 psql -U shopping-cart -t < dd
     curl http://localhost:9101/ready
     ```
 
+## Checking Local Data
+
+### Local Connection
+
+```
+jdbc:postgresql://localhost:5432/shopping-cart
+shopping-cart
+shopping-cart
+```
+
+### Queries
+```sql
+-- List of all events
+SELECT * FROM public.event_journal
+--Projections
+
+```

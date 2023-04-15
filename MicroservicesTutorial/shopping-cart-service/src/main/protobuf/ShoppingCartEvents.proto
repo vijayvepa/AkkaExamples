@@ -22,6 +22,6 @@ message ItemRemoved {
   string  itemId = 2;
 }
 
-message Checkout {
+message CheckedOut {
   string cartId  = 1;
 }
