@@ -1,4 +1,4 @@
-package shopping.cart.grpc;
+package shopping.grpc;
 
 
 import akka.actor.typed.ActorSystem;

@@ -1,6 +1,5 @@
 package shopping;
 
-import com.typesafe.config.Config;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +20,7 @@ import java.util.Properties;
 @Configuration
 @EnableJpaRepositories(basePackageClasses = ItemPopularityRepository.class)
 @EnableTransactionManagement
-public class SpringConfig {
+public class EntityConfig {
 
   /**
    * Configures a {@link JpaTransactionManager} to be used by Akka Projections. The transaction

@@ -21,7 +21,7 @@ public class SpringIntegration {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     // register the Config as a bean so it can be later injected into SpringConfig
     context.registerBean(Config.class, () -> config);
-    context.register(DatabaseConfig.class, SpringConfig.class);
+    context.register(DatabaseConfig.class, EntityConfig.class);
     context.refresh();
 
     // Make sure the Spring context is closed when the actor system terminates
