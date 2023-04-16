@@ -1,4 +1,4 @@
-package shopping.cart;
+package shopping.cart.projection;
 
 import akka.Done;
 import akka.actor.CoordinatedShutdown;
@@ -32,6 +32,7 @@ import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
+import shopping.cart.ShoppingCart;
 import shopping.cart.event.ItemAdded;
 import shopping.cart.event.ShoppingCartEvent;
 

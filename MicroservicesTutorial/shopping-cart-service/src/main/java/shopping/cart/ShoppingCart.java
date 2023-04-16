@@ -44,7 +44,7 @@ import static akka.pattern.StatusReply.success;
 
 public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState> {
 
-  static final List<String> TAGS = List.of("carts-0", "carts-1", "carts-2", "carts-3", "carts-4");
+  public static final List<String> TAGS = List.of("carts-0", "carts-1", "carts-2", "carts-3", "carts-4");
 
   static final EntityTypeKey<ShoppingCartCommand> ENTITY_TYPE_KEY =
       EntityTypeKey.create(ShoppingCartCommand.class, "ShoppingCart");
