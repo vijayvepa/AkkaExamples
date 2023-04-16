@@ -14,8 +14,6 @@ import shopping.cart.command.Get;
 import shopping.cart.command.RemoveItem;
 import shopping.cart.event.CheckedOut;
 import shopping.cart.event.ItemAdded;
-import shopping.cart.event.ShoppingCartEvent;
-import shopping.cart.model.ShoppingCartState;
 import shopping.cart.model.Summary;
 
 import static org.junit.Assert.assertEquals;

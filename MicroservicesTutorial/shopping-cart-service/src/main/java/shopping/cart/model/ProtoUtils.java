@@ -1,7 +1,6 @@
-package shopping.cart;
+package shopping.cart.model;
 
-import shopping.cart.model.ItemPopularity;
-import shopping.cart.model.Summary;
+import shopping.cart.event.ItemAdded;
 import shopping.cart.proto.Cart;
 import shopping.cart.proto.GetItemPopularityResponse;
 import shopping.cart.proto.Item;
@@ -9,8 +8,8 @@ import shopping.cart.proto.Item;
 import java.util.List;
 import java.util.Optional;
 
-public class Mapper {
-  private Mapper(){}
+public class ProtoUtils {
+  private ProtoUtils(){}
 
   public static Cart toProtoSummary(Summary summary) {
     final List<Item> protoItems = summary.items().entrySet().stream()
@@ -27,5 +26,13 @@ public class Mapper {
     String id = itemPopularity.map(ItemPopularity::itemId).orElse("");
     return GetItemPopularityResponse.newBuilder()
         .setItemId(id).setPopularityCount(count).build();
+  }
+
+  public static shopping.cart.proto.ItemAdded toProtoItemAdded(ItemAdded someItemAdded) {
+    return shopping.cart.proto.ItemAdded.newBuilder()
+        .setCartId(someItemAdded.cartId())
+        .setItemId(someItemAdded.itemId())
+        .setQuantity(someItemAdded.quantity())
+        .build();
   }
 }

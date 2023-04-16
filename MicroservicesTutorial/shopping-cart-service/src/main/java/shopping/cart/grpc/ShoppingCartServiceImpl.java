@@ -7,7 +7,7 @@ import akka.cluster.sharding.typed.javadsl.ClusterSharding;
 import akka.cluster.sharding.typed.javadsl.EntityRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import shopping.cart.Mapper;
+import shopping.cart.model.ProtoUtils;
 import shopping.cart.ShoppingCart;
 import shopping.cart.ShoppingCartCommand;
 import shopping.cart.command.AddItem;
@@ -68,7 +68,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     final EntityRef<ShoppingCartCommand> entityRef = getEntityRef(in.getCartId());
     final CompletionStage<Summary> reply = entityRef.askWithStatus(replyTo -> new AddItem(in.getItemId(), in.getQuantity(), replyTo), timeout);
 
-    final CompletionStage<Cart> cart = reply.thenApply(Mapper::toProtoSummary);
+    final CompletionStage<Cart> cart = reply.thenApply(ProtoUtils::toProtoSummary);
 
     return convertError(cart);
   }
@@ -80,7 +80,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     final CompletionStage<Summary> reply = entityRef.askWithStatus(replyTo -> new RemoveItem(in.getItemId(), replyTo), timeout);
 
-    final CompletionStage<Cart> response = reply.thenApply(Mapper::toProtoSummary);
+    final CompletionStage<Cart> response = reply.thenApply(ProtoUtils::toProtoSummary);
 
     return convertError(response);
   }
@@ -95,7 +95,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     final EntityRef<ShoppingCartCommand> entityRef = getEntityRef(in.getCartId());
     final CompletionStage<Summary> summary = entityRef.askWithStatus(Checkout::new, timeout);
-    final CompletionStage<Cart> cart = summary.thenApply(Mapper::toProtoSummary);
+    final CompletionStage<Cart> cart = summary.thenApply(ProtoUtils::toProtoSummary);
     return convertError(cart);
 
   }
@@ -109,7 +109,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     final CompletionStage<Cart> protoCart = GrpcUtils.handleNotFound(
         get,
         summary -> summary.items().isEmpty(),
-        Mapper::toProtoSummary,
+        ProtoUtils::toProtoSummary,
         String.format("Cart %s is empty", in.getCartId()));
 
     return convertError(protoCart);
@@ -123,7 +123,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     final CompletionStage<Summary> reply = entityRef.askWithStatus(replyTo -> new AdjustItemQuantity(in.getItemId(), in.getQuantity(), replyTo), timeout);
 
-    final CompletionStage<Cart> response = reply.thenApply(Mapper::toProtoSummary);
+    final CompletionStage<Cart> response = reply.thenApply(ProtoUtils::toProtoSummary);
 
     return convertError(response);
   }
@@ -132,7 +132,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
   public CompletionStage<GetItemPopularityResponse> getItemPopularity(GetItemPopularityRequest in) {
 
     final CompletableFuture<Optional<ItemPopularity>> itemPopularityOptional = CompletableFuture.supplyAsync(() -> repository.findById(in.getItemId()), blockingJdbcExecutor);
-    return itemPopularityOptional.thenApply(Mapper::toProtoItemPopularity);
+    return itemPopularityOptional.thenApply(ProtoUtils::toProtoItemPopularity);
   }
 
 

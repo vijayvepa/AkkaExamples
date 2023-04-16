@@ -27,8 +27,6 @@ import shopping.cart.event.CheckedOut;
 import shopping.cart.event.ItemAdded;
 import shopping.cart.event.ItemQuantityAdjusted;
 import shopping.cart.event.ItemRemoved;
-import shopping.cart.event.ShoppingCartEvent;
-import shopping.cart.model.ShoppingCartState;
 import shopping.cart.model.Summary;
 
 import java.time.Duration;

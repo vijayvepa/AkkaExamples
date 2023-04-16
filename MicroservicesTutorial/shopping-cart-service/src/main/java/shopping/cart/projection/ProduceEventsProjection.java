@@ -5,7 +5,6 @@ import akka.actor.CoordinatedShutdown;
 import akka.actor.typed.ActorSystem;
 import akka.cluster.sharding.typed.ShardedDaemonProcessSettings;
 import akka.cluster.sharding.typed.javadsl.ShardedDaemonProcess;
-import akka.japi.function.Function;
 import akka.kafka.ProducerSettings;
 import akka.kafka.javadsl.SendProducer;
 import akka.persistence.jdbc.query.javadsl.JdbcReadJournal;
@@ -17,28 +16,20 @@ import akka.projection.eventsourced.javadsl.EventSourcedProvider;
 import akka.projection.javadsl.AtLeastOnceProjection;
 import akka.projection.javadsl.Handler;
 import akka.projection.javadsl.SourceProvider;
-import akka.projection.jdbc.JdbcSession;
 import akka.projection.jdbc.javadsl.JdbcProjection;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
-import jakarta.persistence.EntityManager;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 import shopping.cart.ShoppingCart;
 import shopping.cart.event.ItemAdded;
-import shopping.cart.event.ShoppingCartEvent;
+import shopping.cart.ShoppingCartEvent;
+import shopping.cart.model.ProtoUtils;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
@@ -118,13 +109,7 @@ public final class ProduceEventsProjection {
       final ByteString protoMessage;
       final String fullName;
       if (event instanceof ItemAdded someItemAdded) {
-        protoMessage =
-            shopping.cart.proto.ItemAdded.newBuilder()
-                .setCartId(someItemAdded.cartId())
-                .setItemId(someItemAdded.itemId())
-                .setQuantity(someItemAdded.quantity())
-                .build()
-                .toByteString();
+        protoMessage = ProtoUtils.toProtoItemAdded(someItemAdded).toByteString();
         fullName = shopping.cart.proto.ItemAdded.getDescriptor().getFullName();
       } else {
         throw new IllegalArgumentException("Unknown event type: " + event.getClass());
@@ -138,69 +123,5 @@ public final class ProduceEventsProjection {
     }
   }
 
-  /**
-   * Hibernate based implementation of Akka Projection JdbcSession. This class is required when
-   * building a JdbcProjection. It provides the means for the projection to start a transaction
-   * whenever a new event envelope is to be delivered to the user defined projection handler.
-   *
-   * <p>The JdbcProjection will use the transaction manager to initiate a transaction to commit the
-   * envelope offset. Then used in combination with JdbcProjection.exactlyOnce method, the user
-   * handler code and the offset store operation participates on the same transaction.
-   */
-  static class JpaSession extends DefaultTransactionDefinition implements JdbcSession {
-
-    private final JpaTransactionManager transactionManager;
-    private final TransactionStatus transactionStatus;
-
-    public JpaSession(JpaTransactionManager transactionManager) {
-      this.transactionManager = transactionManager;
-      this.transactionStatus = transactionManager.getTransaction(this);
-    }
-
-    public EntityManager entityManager() {
-      return EntityManagerFactoryUtils.getTransactionalEntityManager(
-          Objects.requireNonNull(transactionManager.getEntityManagerFactory()));
-    }
-
-    @SuppressWarnings({
-        "resource" //causes RuntimeException
-    })
-    @Override
-    public <Result> Result withConnection(Function<Connection, Result> func) {
-      EntityManager entityManager = entityManager();
-      Session hibernateSession = ((Session) entityManager.getDelegate());
-      return hibernateSession.doReturningWork(
-          connection -> {
-            try {
-              return func.apply(connection);
-            } catch (SQLException e) {
-              throw e;
-            } catch (Exception e) {
-              throw new SQLException(e);
-            }
-          });
-    }
-
-    @SuppressWarnings({
-        "resource" //causes RuntimeException
-    })
-    @Override
-    public void commit() {
-      if (entityManager().isOpen()) transactionManager.commit(transactionStatus);
-    }
-
-    @SuppressWarnings({
-        "resource" //causes RuntimeException
-    })
-    @Override
-    public void rollback() {
-      if (entityManager().isOpen()) transactionManager.rollback(transactionStatus);
-    }
-
-    @Override
-    public void close() {
-      entityManager().close();
-    }
-  }
 }
 

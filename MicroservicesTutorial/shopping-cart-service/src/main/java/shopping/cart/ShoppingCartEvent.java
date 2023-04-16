@@ -1,4 +1,4 @@
-package shopping.cart.event;
+package shopping.cart;
 
 import shopping.cart.CborSerializable;
 

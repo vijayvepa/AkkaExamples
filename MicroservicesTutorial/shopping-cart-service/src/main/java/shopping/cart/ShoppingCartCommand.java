@@ -1,4 +1,6 @@
 package shopping.cart;
 
-public interface ShoppingCartCommand extends CborSerializable{
+import shopping.cart.CborSerializable;
+
+public interface ShoppingCartCommand extends CborSerializable {
 }

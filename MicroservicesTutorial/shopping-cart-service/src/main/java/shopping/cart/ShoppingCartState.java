@@ -1,6 +1,6 @@
-package shopping.cart.model;
+package shopping.cart;
 
-import shopping.cart.CborSerializable;
+import shopping.cart.model.Summary;
 
 import java.time.Instant;
 import java.util.HashMap;

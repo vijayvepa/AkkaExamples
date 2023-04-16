@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import shopping.cart.ShoppingCart;
 import shopping.cart.event.ItemAdded;
-import shopping.cart.event.ShoppingCartEvent;
+import shopping.cart.ShoppingCartEvent;
 import shopping.cart.model.ItemPopularity;
 import shopping.cart.repository.ItemPopularityRepository;
 
