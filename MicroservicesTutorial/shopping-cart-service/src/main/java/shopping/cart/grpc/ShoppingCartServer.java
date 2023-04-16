@@ -1,4 +1,4 @@
-package shopping.cart;
+package shopping.cart.grpc;
 
 import akka.actor.typed.ActorSystem;
 import akka.grpc.javadsl.ServerReflection;
@@ -24,11 +24,11 @@ public class ShoppingCartServer {
   private ShoppingCartServer() {
   }
 
-  static void start(
-      String host,
-      int port,
-      ActorSystem<?> system,
-      ShoppingCartService shoppingCartService) {
+   public static void start(
+       String host,
+       int port,
+       ActorSystem<?> system,
+       ShoppingCartService shoppingCartService) {
 
     @SuppressWarnings("unchecked")
     Function<HttpRequest, CompletionStage<HttpResponse>> service =

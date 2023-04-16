@@ -46,7 +46,7 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
 
   public static final List<String> TAGS = List.of("carts-0", "carts-1", "carts-2", "carts-3", "carts-4");
 
-  static final EntityTypeKey<ShoppingCartCommand> ENTITY_TYPE_KEY =
+  public static final EntityTypeKey<ShoppingCartCommand> ENTITY_TYPE_KEY =
       EntityTypeKey.create(ShoppingCartCommand.class, "ShoppingCart");
 
   private final String cartId;
@@ -67,7 +67,7 @@ public class ShoppingCart extends EventSourcedBehaviorWithEnforcedReplies<Shoppi
   }
 
   private static String getRandomProjectionTag(EntityContext<ShoppingCartCommand> entityContext) {
-    final int tagIndex = entityContext.getEntityId().hashCode() % TAGS.size();
+    final int tagIndex = Math.abs(entityContext.getEntityId().hashCode() % TAGS.size());
     return TAGS.get(tagIndex);
   }
 

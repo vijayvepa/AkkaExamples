@@ -1,4 +1,4 @@
-package shopping.cart;
+package shopping.cart.grpc;
 
 
 import akka.actor.typed.ActorSystem;
@@ -7,6 +7,9 @@ import akka.cluster.sharding.typed.javadsl.ClusterSharding;
 import akka.cluster.sharding.typed.javadsl.EntityRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import shopping.cart.Mapper;
+import shopping.cart.ShoppingCart;
+import shopping.cart.ShoppingCartCommand;
 import shopping.cart.command.AddItem;
 import shopping.cart.command.AdjustItemQuantity;
 import shopping.cart.command.Checkout;
@@ -31,7 +34,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 
-import static shopping.cart.GrpcUtils.convertError;
+import static shopping.cart.grpc.GrpcUtils.convertError;
 
 
 public class ShoppingCartServiceImpl implements ShoppingCartService {
