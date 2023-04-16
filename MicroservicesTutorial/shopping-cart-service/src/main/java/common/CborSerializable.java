@@ -1,4 +1,4 @@
-package shopping.cart;
+package common;
 
 /**
  * Marker trait for serialization with Jackson CBOR. Enabled in serialization.conf

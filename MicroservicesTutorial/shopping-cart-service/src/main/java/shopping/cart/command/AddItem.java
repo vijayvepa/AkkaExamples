@@ -2,7 +2,7 @@ package shopping.cart.command;
 
 import akka.actor.typed.ActorRef;
 import akka.pattern.StatusReply;
-import shopping.cart.CborSerializable;
+import common.CborSerializable;
 import shopping.cart.ShoppingCartCommand;
 import shopping.cart.model.Summary;
 

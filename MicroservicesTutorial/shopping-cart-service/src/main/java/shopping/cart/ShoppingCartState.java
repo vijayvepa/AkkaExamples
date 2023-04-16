@@ -1,5 +1,6 @@
 package shopping.cart;
 
+import common.CborSerializable;
 import shopping.cart.model.Summary;
 
 import java.time.Instant;

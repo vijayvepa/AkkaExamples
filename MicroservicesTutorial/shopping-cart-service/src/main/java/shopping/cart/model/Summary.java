@@ -1,6 +1,6 @@
 package shopping.cart.model;
 
-import shopping.cart.CborSerializable;
+import common.CborSerializable;
 
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-package shopping.cart.projection;
+package shopping.kafka;
 
 import akka.Done;
 import akka.actor.CoordinatedShutdown;

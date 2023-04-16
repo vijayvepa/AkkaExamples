@@ -12,8 +12,8 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import shopping.cart.ShoppingCart;
 import shopping.grpc.ShoppingCartServer;
 import shopping.grpc.ShoppingCartServiceImpl;
+import shopping.kafka.ProduceEventsProjection;
 import shopping.popularity.ItemPopularityProjection;
-import shopping.cart.projection.ProduceEventsProjection;
 import shopping.popularity.repository.ItemPopularityRepository;
 
 public class Main {
