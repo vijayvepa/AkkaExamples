@@ -3,16 +3,22 @@ package common;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValue;
 import com.zaxxer.hikari.HikariDataSource;
+import jakarta.persistence.EntityManagerFactory;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import shopping.cart.ShoppingCart;
 
 import javax.sql.DataSource;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +32,15 @@ public class DatabaseConfig {
     this.config = config;
   }
 
+  /**
+   * Configures a {@link JpaTransactionManager} to be used by Akka Projections. The transaction
+   * manager should be used to construct a {@link common.JpaSession}
+   * that is then used to configure the {@link akka.projection.jdbc.javadsl.JdbcProjection}.
+   */
+  @Bean
+  public PlatformTransactionManager transactionManager(FactoryBean<EntityManagerFactory> entityManagerFactory) throws Exception {
+    return new JpaTransactionManager(Objects.requireNonNull(entityManagerFactory.getObject()));
+  }
 
   /**
    * Returns a {@link DataSource} configured with the settings in {@code

@@ -1,4 +1,4 @@
-package shopping.popularity;
+package shopping;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -23,15 +23,7 @@ import java.util.Properties;
 @EnableTransactionManagement
 public class EntityConfig {
 
-  /**
-   * Configures a {@link JpaTransactionManager} to be used by Akka Projections. The transaction
-   * manager should be used to construct a {@link common.JpaSession}
-   * that is then used to configure the {@link akka.projection.jdbc.javadsl.JdbcProjection}.
-   */
-  @Bean
-  public PlatformTransactionManager transactionManager(LocalContainerEntityManagerFactoryBean entityManagerFactory) {
-    return new JpaTransactionManager(Objects.requireNonNull(entityManagerFactory.getObject()));
-  }
+
 
   /** An EntityManager factory using the configured database connection settings.
    * @param dataSource data source

@@ -5,7 +5,6 @@ import com.typesafe.config.Config;
 import common.DatabaseConfig;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import shopping.popularity.EntityConfig;
 
 /**
  * Provides an integration point for initializing a Spring {@link ApplicationContext} configured for
