@@ -12,9 +12,9 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import shopping.cart.ShoppingCart;
 import shopping.grpc.ShoppingCartServer;
 import shopping.grpc.ShoppingCartServiceImpl;
-import shopping.cart.projection.ItemPopularityProjection;
+import shopping.popularity.ItemPopularityProjection;
 import shopping.cart.projection.ProduceEventsProjection;
-import shopping.cart.repository.ItemPopularityRepository;
+import shopping.popularity.repository.ItemPopularityRepository;
 
 public class Main {
 

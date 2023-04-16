@@ -1,4 +1,4 @@
-package shopping.cart.model;
+package shopping.popularity.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

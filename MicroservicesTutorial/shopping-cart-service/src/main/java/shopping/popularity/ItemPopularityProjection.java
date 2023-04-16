@@ -1,4 +1,4 @@
-package shopping.cart.projection;
+package shopping.popularity;
 
 import akka.actor.typed.ActorSystem;
 import akka.cluster.sharding.typed.ShardedDaemonProcessSettings;
@@ -20,8 +20,8 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import shopping.cart.ShoppingCart;
 import shopping.cart.event.ItemAdded;
 import shopping.cart.ShoppingCartEvent;
-import shopping.cart.model.ItemPopularity;
-import shopping.cart.repository.ItemPopularityRepository;
+import shopping.popularity.model.ItemPopularity;
+import shopping.popularity.repository.ItemPopularityRepository;
 
 import java.util.Optional;
 

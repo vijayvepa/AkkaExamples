@@ -1,9 +1,11 @@
-package shopping.cart.model;
+package shopping;
 
 import shopping.cart.event.ItemAdded;
+import shopping.cart.model.Summary;
 import shopping.cart.proto.Cart;
 import shopping.cart.proto.GetItemPopularityResponse;
 import shopping.cart.proto.Item;
+import shopping.popularity.model.ItemPopularity;
 
 import java.util.List;
 import java.util.Optional;

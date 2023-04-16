@@ -29,7 +29,7 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import shopping.cart.ShoppingCart;
 import shopping.cart.event.ItemAdded;
 import shopping.cart.ShoppingCartEvent;
-import shopping.cart.model.ProtoUtils;
+import shopping.ProtoUtils;
 
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;

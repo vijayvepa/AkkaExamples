@@ -1,7 +1,7 @@
-package shopping.cart.repository;
+package shopping.popularity.repository;
 
 import org.springframework.data.repository.Repository;
-import shopping.cart.model.ItemPopularity;
+import shopping.popularity.model.ItemPopularity;
 
 import java.util.Optional;
 
