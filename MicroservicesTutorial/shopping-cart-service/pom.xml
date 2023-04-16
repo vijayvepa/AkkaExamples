@@ -205,7 +205,7 @@
                         <argument>-Dconfig.resource=${APP_CONFIG}</argument>
                         <argument>-classpath</argument>
                         <classpath />
-                        <argument>shopping.cart.Main</argument>
+                        <argument>shopping.Main</argument>
                     </arguments>
                 </configuration>
             </plugin>
@@ -276,7 +276,7 @@
                                         <arg>java</arg>
                                         <arg>-cp</arg>
                                         <arg>/maven/*</arg>
-                                        <arg>shopping.cart.Main</arg>
+                                        <arg>shopping.Main</arg>
                                     </exec>
                                 </entryPoint>
                                 <assembly>

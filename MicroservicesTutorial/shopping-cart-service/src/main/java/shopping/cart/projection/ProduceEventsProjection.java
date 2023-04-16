@@ -19,6 +19,7 @@ import akka.projection.javadsl.SourceProvider;
 import akka.projection.jdbc.javadsl.JdbcProjection;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
+import common.JpaSession;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;

@@ -1,4 +1,4 @@
-package shopping.cart.repository;
+package common;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValue;
@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -19,15 +20,16 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import shopping.cart.ShoppingCart;
 
 /** Configure the necessary components required for integration with Akka Projections */
 @Configuration
-@EnableJpaRepositories
+@EnableJpaRepositories(basePackageClasses = ShoppingCart.class)
 @EnableTransactionManagement
+@ComponentScan(basePackageClasses = ShoppingCart.class)
 public class SpringConfig {
 
   private final Config config;
-
   public SpringConfig(Config config) {
     this.config = config;
   }

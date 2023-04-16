@@ -1,4 +1,4 @@
-package shopping.cart;
+package shopping;
 
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.javadsl.Behaviors;
@@ -9,12 +9,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.orm.jpa.JpaTransactionManager;
+import shopping.cart.ShoppingCart;
 import shopping.cart.grpc.ShoppingCartServer;
 import shopping.cart.grpc.ShoppingCartServiceImpl;
 import shopping.cart.projection.ItemPopularityProjection;
 import shopping.cart.projection.ProduceEventsProjection;
 import shopping.cart.repository.ItemPopularityRepository;
-import shopping.cart.repository.SpringIntegration;
+import common.SpringIntegration;
 
 public class Main {
 

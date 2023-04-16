@@ -1,7 +1,8 @@
-package shopping.cart.repository;
+package common;
 
 import akka.actor.typed.ActorSystem;
 import com.typesafe.config.Config;
+import common.SpringConfig;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 

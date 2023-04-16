@@ -1,4 +1,4 @@
-package shopping.cart.projection;
+package common;
 
 import akka.japi.function.Function;
 import akka.projection.jdbc.JdbcSession;
@@ -22,7 +22,7 @@ import java.util.Objects;
  * envelope offset. Then used in combination with JdbcProjection.exactlyOnce method, the user
  * handler code and the offset store operation participates on the same transaction.
  */
-class JpaSession extends DefaultTransactionDefinition implements JdbcSession {
+public class JpaSession extends DefaultTransactionDefinition implements JdbcSession {
 
   private final JpaTransactionManager transactionManager;
   private final TransactionStatus transactionStatus;

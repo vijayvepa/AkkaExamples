@@ -1,4 +1,4 @@
-package shopping.cart.grpc;
+package common;
 
 import akka.grpc.GrpcServiceException;
 import io.grpc.Status;
