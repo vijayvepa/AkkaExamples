@@ -1,8 +1,8 @@
-package common;
+package shopping;
 
 import akka.actor.typed.ActorSystem;
 import com.typesafe.config.Config;
-import common.SpringConfig;
+import common.DatabaseConfig;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -21,7 +21,7 @@ public class SpringIntegration {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     // register the Config as a bean so it can be later injected into SpringConfig
     context.registerBean(Config.class, () -> config);
-    context.register(SpringConfig.class);
+    context.register(DatabaseConfig.class, SpringConfig.class);
     context.refresh();
 
     // Make sure the Spring context is closed when the actor system terminates

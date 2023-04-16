@@ -3,64 +3,29 @@ package common;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValue;
 import com.zaxxer.hikari.HikariDataSource;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.Database;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import shopping.cart.ShoppingCart;
 
+import javax.sql.DataSource;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 /** Configure the necessary components required for integration with Akka Projections */
 @Configuration
-@EnableJpaRepositories(basePackageClasses = ShoppingCart.class)
-@EnableTransactionManagement
-@ComponentScan(basePackageClasses = ShoppingCart.class)
-public class SpringConfig {
+public class DatabaseConfig {
 
   private final Config config;
-  public SpringConfig(Config config) {
+  public DatabaseConfig(Config config) {
     this.config = config;
   }
 
-  /**
-   * Configures a {@link JpaTransactionManager} to be used by Akka Projections. The transaction
-   * manager should be used to construct a {@link shopping.cart.repository.HibernateJdbcSession}
-   * that is then used to configure the {@link akka.projection.jdbc.javadsl.JdbcProjection}.
-   */
-  @Bean
-  public PlatformTransactionManager transactionManager() {
-    return new JpaTransactionManager(Objects.requireNonNull(entityManagerFactory().getObject()));
-  }
-
-  /** An EntityManager factory using the configured database connection settings. */
-  @Bean
-  public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-
-    HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-    vendorAdapter.setDatabase(Database.POSTGRESQL);
-
-    LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
-    factory.setJpaVendorAdapter(vendorAdapter);
-    factory.setPackagesToScan("shopping.cart");
-    // set the DataSource configured with settings in jdbc-connection-settings
-    factory.setDataSource(dataSource());
-    // load additional properties from config jdbc-connection-settings.additional-properties
-    factory.setJpaProperties(additionalProperties());
-
-    return factory;
-  }
 
   /**
    * Returns a {@link DataSource} configured with the settings in {@code
@@ -100,7 +65,8 @@ public class SpringConfig {
    * jdbc-connection-settings.additional-properties}. The properties must be defined as key/value
    * pairs of String/String.
    */
-  Properties additionalProperties() {
+  @Bean(name = "jpaProperties")
+  Properties jpaProperties() {
     Properties properties = new Properties();
 
     Config additionalProperties = jdbcConfig().getConfig("additional-properties");

@@ -15,7 +15,6 @@ import shopping.cart.grpc.ShoppingCartServiceImpl;
 import shopping.cart.projection.ItemPopularityProjection;
 import shopping.cart.projection.ProduceEventsProjection;
 import shopping.cart.repository.ItemPopularityRepository;
-import common.SpringIntegration;
 
 public class Main {
 
