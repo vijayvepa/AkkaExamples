@@ -1,4 +1,4 @@
-package shopping.cart;
+package shopping.order;
 
 import akka.actor.typed.ActorSystem;
 import akka.cluster.sharding.typed.ShardedDaemonProcessSettings;
@@ -12,12 +12,13 @@ import akka.projection.eventsourced.javadsl.EventSourcedProvider;
 import akka.projection.javadsl.AtLeastOnceProjection;
 import akka.projection.javadsl.SourceProvider;
 import akka.projection.jdbc.javadsl.JdbcProjection;
-import java.util.Optional;
-
 import common.JpaSession;
 import org.springframework.orm.jpa.JpaTransactionManager;
-import shopping.order.ShoppingOrderGrpcProjectionHandler;
+import shopping.cart.ShoppingCart;
+import shopping.cart.ShoppingCartEvent;
 import shopping.order.proto.ShoppingOrderService;
+
+import java.util.Optional;
 
 public class SendOrderProjection {
 
