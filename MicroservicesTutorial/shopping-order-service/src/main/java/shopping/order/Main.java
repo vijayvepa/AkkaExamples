@@ -13,7 +13,7 @@ public class Main {
 
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     ActorSystem<Void> system = ActorSystem.create(Behaviors.empty(), "ShoppingOrderService");
     try {
       init(system);

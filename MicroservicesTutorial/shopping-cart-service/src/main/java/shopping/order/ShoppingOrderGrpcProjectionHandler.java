@@ -1,22 +1,14 @@
 package shopping.order;
 
-import static akka.Done.done;
-
 import akka.Done;
 import akka.actor.typed.ActorSystem;
 import akka.cluster.sharding.typed.javadsl.ClusterSharding;
 import akka.cluster.sharding.typed.javadsl.EntityRef;
 import akka.projection.eventsourced.EventEnvelope;
 import akka.projection.javadsl.Handler;
-
-import java.time.Duration;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import shopping.cart.ShoppingCart;
 import shopping.cart.ShoppingCartCommand;
 import shopping.cart.ShoppingCartEvent;
 import shopping.cart.command.Get;
@@ -25,7 +17,13 @@ import shopping.cart.model.Summary;
 import shopping.order.proto.Item;
 import shopping.order.proto.OrderRequest;
 import shopping.order.proto.ShoppingOrderService;
-import shopping.cart.ShoppingCart;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+
+import static akka.Done.done;
 
 
 public final class ShoppingOrderGrpcProjectionHandler extends Handler<EventEnvelope<ShoppingCartEvent>> {
@@ -43,8 +41,7 @@ public final class ShoppingOrderGrpcProjectionHandler extends Handler<EventEnvel
   }
 
   @Override
-  public CompletionStage<Done> process(EventEnvelope<ShoppingCartEvent> envelope)
-      throws Exception {
+  public CompletionStage<Done> process(EventEnvelope<ShoppingCartEvent> envelope) {
     if (envelope.event() instanceof CheckedOut theCheckedOutEvent) {
       return sendOrder(theCheckedOutEvent);
     } else {

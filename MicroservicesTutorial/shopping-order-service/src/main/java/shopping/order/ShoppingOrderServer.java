@@ -33,7 +33,7 @@ public final class ShoppingOrderServer {
                 Collections.singletonList(ShoppingOrderService.description), system));
 
     CompletionStage<ServerBinding> bound =
-        Http.get(system).newServerAt(host, port).bind(service::apply);
+        Http.get(system).newServerAt(host, port).bind(service);
 
     bound.whenComplete(
         (binding, ex) -> {
