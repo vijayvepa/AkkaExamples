@@ -61,7 +61,7 @@ public final class ShoppingOrderGrpcProjectionHandler extends Handler<EventEnvel
               .map(entry -> Item.newBuilder().setQuantity(entry.getValue()).setItemId(entry.getKey()).build()
               ).toList();
 
-          //todo: resolve more properties
+
           log.info("Sending order of {} items for cart {}.", cart.items().size(), checkedOut.cartId());
           OrderRequest orderRequest =
               OrderRequest.newBuilder().addAllItems(items).setCartId(checkedOut.cartId()).build();
