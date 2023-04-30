@@ -13,25 +13,41 @@ import shopping.cart.ShoppingCart;
 import shopping.grpc.ShoppingCartServer;
 import shopping.grpc.ShoppingCartServiceImpl;
 import shopping.kafka.ProduceEventsProjection;
+import shopping.order.SendOrderProjection;
 import shopping.popularity.ItemPopularityProjection;
 import shopping.popularity.repository.ItemPopularityRepository;
+import akka.grpc.GrpcClientSettings;
+import shopping.order.proto.ShoppingOrderService;
+import shopping.order.proto.ShoppingOrderServiceClient;
+
 
 public class Main {
 
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
+  static ShoppingOrderService orderServiceClient(ActorSystem<?> system) {
+    GrpcClientSettings orderServiceClientSettings =
+        GrpcClientSettings.connectToServiceAt(
+                system.settings().config().getString("shopping-order-service.host"),
+                system.settings().config().getInt("shopping-order-service.port"),
+                system)
+            .withTls(false);
+
+    return ShoppingOrderServiceClient.create(orderServiceClientSettings, system);
+  }
 
   public static void main(String[] args) {
     ActorSystem<Void> system = ActorSystem.create(Behaviors.empty(), "ShoppingCartService");
     try {
-      init(system);
+      init(system, orderServiceClient(system));
+
     } catch (Exception e) {
       logger.error("Terminating due to initialization failure.", e);
       system.terminate();
     }
   }
 
-  public static void init(ActorSystem<Void> system) {
+  public static void init(ActorSystem<Void> system, ShoppingOrderService shoppingOrderService) {
     AkkaManagement.get(system).start();
     ClusterBootstrap.get(system).start();
 
@@ -53,6 +69,7 @@ public class Main {
     ShoppingCartServer.start(grpcInterface, grpcPort, system, shoppingCartService);
     ShoppingCart.init(system);
 
+    SendOrderProjection.init(system, jpaTransactionManager, shoppingOrderService);
 
   }
 }
