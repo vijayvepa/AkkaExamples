@@ -13,7 +13,7 @@ import shopping.cart.ShoppingCart;
 import shopping.grpc.ShoppingCartServer;
 import shopping.grpc.ShoppingCartServiceImpl;
 import shopping.kafka.ProduceEventsProjection;
-import shopping.order.SendOrderProjection;
+import shopping.order.ShoppingOrderProjection;
 import shopping.popularity.ItemPopularityProjection;
 import shopping.popularity.repository.ItemPopularityRepository;
 import akka.grpc.GrpcClientSettings;
@@ -69,7 +69,7 @@ public class Main {
     ShoppingCartServer.start(grpcInterface, grpcPort, system, shoppingCartService);
     ShoppingCart.init(system);
 
-    SendOrderProjection.init(system, jpaTransactionManager, shoppingOrderService);
+    ShoppingOrderProjection.init(system, jpaTransactionManager, shoppingOrderService);
 
   }
 }
