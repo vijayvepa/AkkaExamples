@@ -30,7 +30,7 @@ public class ShoppingCartTest {
       new TestKitJunitResource(
           ConfigFactory.parseString("""
               akka.actor.serialization-bindings {
-                "shopping.cart.CborSerializable" = jackson-cbor
+                "common.CborSerializable" = jackson-cbor
               }""")
               .withFallback(EventSourcedBehaviorTestKit.config()));
 
@@ -81,7 +81,7 @@ public class ShoppingCartTest {
 
     assertTrue(checkout.reply().isSuccess());
     assertTrue(checkout.event() instanceof CheckedOut);
-    assertEquals(CART_ID, ((CheckedOut) checkout.event()).cartId());
+    assertEquals(CART_ID, checkout.event().cartId());
 
     final EventSourcedBehaviorTestKit.CommandResultWithReply<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState, StatusReply<Summary>> item2 =
         eventSourcedTestKit.runCommand(replyTo -> new AddItem("foo2", 42, replyTo));
