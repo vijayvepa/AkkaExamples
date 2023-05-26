@@ -47,3 +47,8 @@ SELECT * FROM public.event_journal
 --Projections
 
 ```
+
+## References
+
+- [Akka Microservices](https://developer.lightbend.com/docs/akka-guide/microservices-tutorial/index.html)
+- [Deploying Akka Cluster to Kubernetes](https://doc.akka.io/docs/akka-management/current/kubernetes-deployment/index.html)

@@ -90,7 +90,7 @@ public class ShoppingCartTest {
   }
 
   @Test
-  public void get(){
+  public void get() {
     final EventSourcedBehaviorTestKit.CommandResultWithReply<ShoppingCartCommand, ShoppingCartEvent, ShoppingCartState, StatusReply<Summary>> foo =
         eventSourcedTestKit.<StatusReply<Summary>>runCommand(replyTo -> new AddItem("foo", 42, replyTo));
 
