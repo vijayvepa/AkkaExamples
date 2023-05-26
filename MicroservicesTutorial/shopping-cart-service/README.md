@@ -52,3 +52,5 @@ SELECT * FROM public.event_journal
 
 - [Akka Microservices](https://developer.lightbend.com/docs/akka-guide/microservices-tutorial/index.html)
 - [Deploying Akka Cluster to Kubernetes](https://doc.akka.io/docs/akka-management/current/kubernetes-deployment/index.html)
+- [Example Projects](https://doc.akka.io/docs/akka/current/project/examples.html)
+- [Deploy kafka with kubernetes](https://dzone.com/articles/how-to-deploy-apache-kafka-with-kubernetes)

@@ -29,7 +29,7 @@ class ShoppingCartEventConsumer {
 
   static void init(ActorSystem<?> system) {
 
-    String topic = system.settings().config().getString("shopping-analytics-service.shopping-cart-kafka-topic");
+    String topic = system.settings().config().getString("shopping-analytics-service.shopping-cart-with-kafkaafka-topic");
 
     ConsumerSettings<String, byte[]> consumerSettings =
         ConsumerSettings.create(system, new StringDeserializer(), new ByteArrayDeserializer())
