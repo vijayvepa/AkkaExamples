@@ -48,6 +48,13 @@ SELECT * FROM public.event_journal
 
 ```
 
+## Deployment
+
+- Building
+```shell
+mvn -Ddocker.username=vijayvepa -Ddocker.registry=docker.io/vijayvepa -Ddocker.password=? package docker:push
+```
+
 ## References
 
 - [Akka Microservices](https://developer.lightbend.com/docs/akka-guide/microservices-tutorial/index.html)
@@ -55,3 +62,6 @@ SELECT * FROM public.event_journal
 - [Example Projects](https://doc.akka.io/docs/akka/current/project/examples.html)
 - [Deploy Kafka with Kubernetes](https://dzone.com/articles/how-to-deploy-apache-kafka-with-kubernetes)
 - [Connecting Applications in Kubernetes](https://kubernetes.io/docs/tutorials/services/connect-applications-service/)
+
+## StackOverflow
+- [Referencing Env Vars in Kube](https://stackoverflow.com/a/49583616/474377)

@@ -16,7 +16,10 @@ spec:
         app: shopping-cart
     spec:
       containers:
-        - name: shopping-cart
+        - env:
+            - name: KAFKA_BOOTSTRAP_SERVER
+              value: "$(KAFKA_SERVICE_SERVICE_HOST):$(KAFKA_SERVICE_SERVICE_PORT)"
+          name: shopping-cart
           image: docker.io/vijayvepa/shopping-cart-service:latest
           readinessProbe:
             httpGet:
