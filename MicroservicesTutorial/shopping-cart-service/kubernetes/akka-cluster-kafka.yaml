@@ -2,25 +2,47 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: shopping-cart
-  name: shopping-cart
+    app: shoppingcartservice
+  name: shoppingcartservice
   namespace: shopping-cart-with-kafka
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: shopping-cart
+      app: shoppingcartservice
   template:
     metadata:
       labels:
-        app: shopping-cart
+        app: shoppingcartservice
     spec:
       containers:
         - env:
             - name: KAFKA_BOOTSTRAP_SERVER
               value: "$(KAFKA_SERVICE_SERVICE_HOST):$(KAFKA_SERVICE_SERVICE_PORT)"
+            - name: JDBC_CONNECTION_SETTINGS_USER
+              valueFrom:
+                configMapKeyRef:
+                  # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+                  name: postgres-config
+                  # Specify the key associated with the value
+                  key: POSTGRES_USER
+            - name: JDBC_CONNECTION_SETTINGS_URL
+              valueFrom:
+                configMapKeyRef:
+                  # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+                  name: postgres-config
+                  # Specify the key associated with the value
+                  key: POSTGRES_URL
+            - name: JDBC_CONNECTION_SETTINGS_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+                  name: postgres-config
+                  # Specify the key associated with the value
+                  key: POSTGRES_PASSWORD
           name: shopping-cart
           image: docker.io/vijayvepa/shopping-cart-service:latest
+          imagePullPolicy: Always
           readinessProbe:
             httpGet:
               path: /ready
