@@ -63,6 +63,7 @@ mvn -Ddocker.username=vijayvepa -Ddocker.registry=docker.io/vijayvepa -Ddocker.p
 - [Deploy Kafka with Kubernetes](https://dzone.com/articles/how-to-deploy-apache-kafka-with-kubernetes)
 - [Connecting Applications in Kubernetes](https://kubernetes.io/docs/tutorials/services/connect-applications-service/)
 - [Deploy Postgres](https://www.airplane.dev/blog/deploy-postgres-on-kubernetes)
+- [Add DDL Script](https://stackoverflow.com/a/58450732/474377)
 
 ## StackOverflow
 - [Referencing Env Vars in Kube](https://stackoverflow.com/a/49583616/474377)

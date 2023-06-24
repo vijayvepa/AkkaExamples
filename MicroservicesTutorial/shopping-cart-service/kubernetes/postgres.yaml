@@ -10,6 +10,7 @@ data:
   POSTGRES_USER: admin
   POSTGRES_PASSWORD: psltest
   POSTGRES_URL: jdbc:postgresql://postgres:5432/postgresdb?reWriteBatchedInserts=true
+  POSTGRES_HOST: postgres
 ---
 kind: PersistentVolume
 apiVersion: v1
