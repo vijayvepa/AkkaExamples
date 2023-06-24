@@ -15,39 +15,6 @@ spec:
       labels:
         app: shoppingcartservice
     spec:
-      initContainers:
-        - image: "docker.io/bitnami/postgresql:11.5.0-debian-9-r60"
-          name: init-db
-          command: [ "bin/sh", "-c", "psql -a -f /sqlCommand.sql" ]
-          volumeMounts:
-            - name: create-tables
-              mountPath: /sqlCommand.sql
-          env:
-          - name: DB_USER
-            valueFrom:
-              configMapKeyRef:
-                name: postgres-config
-                key: POSTGRES_USER
-          - name: DB_URL
-            valueFrom:
-              configMapKeyRef:
-                name: postgres-config
-                key: POSTGRES_URL
-          - name: DB_PASSWORD
-            valueFrom:
-              configMapKeyRef:
-                name: postgres-config
-                key: POSTGRES_PASSWORD
-          - name: DB_HOST
-            valueFrom:
-              configMapKeyRef:
-                name: postgres-config
-                key: POSTGRES_HOST
-          - name: DB_DATABASE
-            valueFrom:
-              configMapKeyRef:
-                name: postgres-config
-                key: POSTGRES_DB
       containers:
         - env:
             - name: KAFKA_BOOTSTRAP_SERVER
@@ -94,12 +61,6 @@ spec:
             requests:
               cpu: 2
               memory: 1024Mi
-      volumes:
-        - name: create-tables
-          configMap:
-            # Provide the name of the ConfigMap containing the files you want
-            # to add to the container
-            name: create-tables
 
 
 ---
