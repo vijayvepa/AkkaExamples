@@ -19,11 +19,13 @@ spec:
         - image: postgres:10.1 # Sets Image
           name: init-db
           # noinspection SpellCheckingInspection
-          command: [ "bin/sh", "-c", "set -x && sleep 10 && export PGPASSWORD=$DB_PASSWORD && psql --dbname=postgresdb --host=postgres --port=$POSTGRES_SERVICE_PORT --username=$DB_USER --no-password  -a -f /sqlCommands/create_tables.sql" ]
+          command: [ "bin/sh", "-c", "set -x && sleep 10 && export PGPASSWORD=$DB_PASSWORD && psql --dbname=postgresdb --host=postgres --port=$POSTGRES_SERVICE_PORT --username=$DB_USER --no-password  -a -f /sqlCommands/create_tables.sql  && psql --dbname=postgresdb --host=postgres --port=$POSTGRES_SERVICE_PORT --username=$DB_USER --no-password  -a -f /userTables/create_user_tables.sql" ]
           #command: [ "bin/sh", "-c", "echo sleep 200000 && sleep 200000" ]
           volumeMounts:
             - name: create-tables
               mountPath: /sqlCommands
+            - name: create-user-tables
+              mountPath: /userTables
           env:
             - name: DB_USER
               valueFrom:
@@ -78,10 +80,21 @@ spec:
           name: shopping-cart
           image: docker.io/vijayvepa/shopping-cart-service:latest
           imagePullPolicy: Always
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: management
+          livenessProbe:
+            httpGet:
+              path: /alive
+              port: management
+            periodSeconds: 10
+            failureThreshold: 10
+            initialDelaySeconds: 20
 
           ports:
             - name: management
-              containerPort: 2551
+              containerPort: 8558
               protocol: TCP
             - name: http
               containerPort: 8101
@@ -98,6 +111,11 @@ spec:
             # Provide the name of the ConfigMap containing the files you want
             # to add to the container
             name: create-tables
+        - name: create-user-tables
+          configMap:
+            # Provide the name of the ConfigMap containing the files you want
+            # to add to the container
+            name: create-user-tables
 
 
 ---
