@@ -15,6 +15,47 @@ spec:
       labels:
         app: shoppingcartservice
     spec:
+      initContainers:
+        - image: postgres:10.1 # Sets Image
+          name: init-db
+          # noinspection SpellCheckingInspection
+          command: [ "bin/sh", "-c", "set -x && sleep 10 && export PGPASSWORD=$DB_PASSWORD && psql --dbname=postgresdb --host=postgres --port=$POSTGRES_SERVICE_PORT --username=$DB_USER --no-password  -a -f /sqlCommands/create_tables.sql" ]
+          #command: [ "bin/sh", "-c", "echo sleep 200000 && sleep 200000" ]
+          volumeMounts:
+            - name: create-tables
+              mountPath: /sqlCommands
+          env:
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_USER
+            - name: DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_URL
+            - name: DB_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_PASSWORD
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_HOST
+            - name: DB_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_DB
+          resources:
+            limits:
+              memory: 1024Mi
+            requests:
+              cpu: 1
+              memory: 1024Mi
       containers:
         - env:
             - name: KAFKA_BOOTSTRAP_SERVER
@@ -37,23 +78,13 @@ spec:
           name: shopping-cart
           image: docker.io/vijayvepa/shopping-cart-service:latest
           imagePullPolicy: Always
-          readinessProbe:
-            httpGet:
-              path: /ready
-              port: management
-          livenessProbe:
-            httpGet:
-              path: /alive
-              port: management
-            periodSeconds: 10
-            failureThreshold: 10
-            initialDelaySeconds: 20
+
           ports:
             - name: management
-              containerPort: 10558
+              containerPort: 2551
               protocol: TCP
             - name: http
-              containerPort: 10080
+              containerPort: 8101
               protocol: TCP
           resources:
             limits:
@@ -61,6 +92,12 @@ spec:
             requests:
               cpu: 2
               memory: 1024Mi
+      volumes:
+        - name: create-tables
+          configMap:
+            # Provide the name of the ConfigMap containing the files you want
+            # to add to the container
+            name: create-tables
 
 
 ---

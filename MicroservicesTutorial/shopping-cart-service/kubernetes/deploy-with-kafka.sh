@@ -6,5 +6,5 @@ kubectl create configmap create-user-tables --from-file=../ddl-scripts/create_us
 kubectl apply -f zookeeper.yaml
 kubectl apply -f kafka-broker.yaml
 kubectl apply -f postgres.yaml
-kubectl apply -f init-db-scripts.yaml
+#kubectl apply -f init-db-scripts.yaml
 kubectl apply -f akka-cluster-kafka.yaml
